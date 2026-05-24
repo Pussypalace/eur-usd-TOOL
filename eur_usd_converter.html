@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EUR → USD Конвертер</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #1a1a1a;
+    --bg2: #222222;
+    --bg3: #2a2a2a;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.12);
+    --text: #f0f0f0;
+    --text2: #909090;
+    --text3: #606060;
+    --green: #1D9E75;
+    --green-dim: rgba(29,158,117,0.15);
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+
+  .logo {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .rate-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--bg2);
+    border: 0.5px solid var(--border2);
+    border-radius: 100px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: var(--text2);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+  }
+
+  /* Card */
+  .card {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .field-label {
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .input-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .currency-sym {
+    font-size: 22px;
+    font-weight: 300;
+    color: var(--text2);
+    line-height: 1;
+  }
+
+  input[type="number"] {
+    font-size: 36px;
+    font-weight: 300;
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    width: 100%;
+    -moz-appearance: textfield;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  .sep {
+    border: none;
+    border-top: 0.5px solid var(--border);
+    margin: 1.25rem 0;
+  }
+
+  .result-label {
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-family: 'IBM Plex Mono', monospace;
+    margin-bottom: 0.4rem;
+  }
+
+  .result-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .result-value {
+    font-size: 40px;
+    font-weight: 300;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .result-cur {
+    font-size: 16px;
+    color: var(--text2);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .savings-note {
+    font-size: 11px;
+    color: var(--green);
+    margin-top: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    min-height: 16px;
+  }
+
+  /* Grid */
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 1.25rem;
+  }
+
+  .info-cell {
+    background: var(--bg3);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+  }
+
+  .info-cell-label {
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-family: 'IBM Plex Mono', monospace;
+    margin-bottom: 4px;
+  }
+
+  .info-cell-val {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .info-cell-val.green { color: var(--green); }
+
+  /* Update button */
+  .update-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+  }
+
+  .update-note {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .update-date {
+    font-size: 11px;
+    color: var(--text2);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 1rem;
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.04em;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <span class="logo">EUR → USD</span>
+    <div class="rate-badge">
+      <span class="dot"></span>
+      <span id="rate-display">1 EUR = 1.1608 USD</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="field-label">Сумма в евро</div>
+    <div class="input-row">
+      <span class="currency-sym">€</span>
+      <input type="number" id="eur-input" value="1000" min="0" step="any" oninput="convert()" />
+    </div>
+
+    <hr class="sep">
+
+    <div class="result-label">Вы получите · курс −1%</div>
+    <div class="result-row">
+      <span class="result-value" id="usd-result">—</span>
+      <span class="result-cur">USD</span>
+    </div>
+    <div class="savings-note" id="note"></div>
+
+    <div class="info-grid">
+      <div class="info-cell">
+        <div class="info-cell-label">Рыночный курс</div>
+        <div class="info-cell-val" id="c-market-rate">—</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-cell-label">Ваш курс (−1%)</div>
+        <div class="info-cell-val" id="c-your-rate">—</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-cell-label">По рыночному</div>
+        <div class="info-cell-val" id="c-market-usd">—</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-cell-label">Экономия</div>
+        <div class="info-cell-val green" id="c-saved">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="update-row">
+    <span class="update-note">Курс вшит · обновить вручную ↓</span>
+    <span class="update-date" id="rate-date">24 мая 2026</span>
+  </div>
+
+  <div class="footer" style="margin-top:0.75rem; padding: 0 4px;">
+    Чтобы обновить курс — открой файл в блокноте<br>и измени значение <code style="color:#4a9e7f">MARKET_RATE</code>
+  </div>
+
+</div>
+
+<script>
+  // ─── КУРС: меняй это значение вручную ───────────────────────────
+  const MARKET_RATE = 1.1608;  // EUR/USD по рынку на 24 мая 2026
+  // ────────────────────────────────────────────────────────────────
+
+  const YOUR_RATE = MARKET_RATE * 0.99;
+
+  document.getElementById('rate-display').textContent = `1 EUR = ${MARKET_RATE.toFixed(4)} USD`;
+  document.getElementById('c-market-rate').textContent = MARKET_RATE.toFixed(4);
+  document.getElementById('c-your-rate').textContent = YOUR_RATE.toFixed(4);
+
+  function fmt(n) {
+    return n.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function convert() {
+    const eur = parseFloat(document.getElementById('eur-input').value) || 0;
+    const yourUsd = eur * YOUR_RATE;
+    const marketUsd = eur * MARKET_RATE;
+    const diff = marketUsd - yourUsd;
+
+    document.getElementById('usd-result').textContent = fmt(yourUsd);
+    document.getElementById('c-market-usd').textContent = '$' + fmt(marketUsd);
+    document.getElementById('c-saved').textContent = eur > 0 ? '-$' + fmt(diff) : '—';
+    document.getElementById('note').textContent = eur > 0
+      ? `На $${diff.toFixed(2)} меньше рыночного`
+      : '';
+  }
+
+  convert();
+</script>
+</body>
+</html>
